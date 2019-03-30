@@ -1,9 +1,9 @@
 import React from "react";
 
-import GlobalInputConnect from '@bit/globalinput.web.global-input-connect';
-import ClipboardCopyButton from '@bit/globalinput.web.clipboard-copy-button';
-import InputWithCopy from '@bit/globalinput.web.input-with-copy';
-import TextButton from '@bit/globalinput.web.text-button';
+import {GlobalInputConnect} from 'global-input-react';
+
+import InputWithCopy from '../components/input-with-copy';
+import TextButton from '../components/text-button';
 
 export default class SecureFormTransfer extends React.Component{
 

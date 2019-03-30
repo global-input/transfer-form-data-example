@@ -1,7 +1,7 @@
 import React from 'react';
 import {styles} from './styles';
-import InputWithLabel from '@bit/globalinput.web.input-with-label';
-import TextButton from '@bit/globalinput.web.text-button';
+import InputWithLabel from '../../components/input-with-label';
+import TextButton from '../../components/text-button';
 export default class AddNewFieldDialog extends React.Component{
 
   constructor(props){

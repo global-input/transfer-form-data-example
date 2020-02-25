@@ -39,7 +39,7 @@ export default class InputWithCopy extends Component{
   renderCopyButton(styles){
     if(this.props.value){
       return(<div style={styles.buttonContainer}>
-        <ClipboardCopyButton copyFieldId={this.props.id}/>
+        <ClipboardCopyButton copyFieldId={this.props.id} valueToCopy={this.props.value}/>
       </div>);
     }
     else{

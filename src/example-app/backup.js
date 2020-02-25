@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import {encrypt,decrypt} from "global-input-message";
+import React from 'react';
 import FormBuilder from "./form-builder";
 import SecureFormTransfer from "./secure-form-transfer";
 import {styles} from "./styles";
+import {encrypt,decrypt} from "global-input-react";
 
 const textContent={
     title:"Transfer Form Data with Global Input App",
@@ -10,8 +10,7 @@ const textContent={
 
 }
 
-
-class App extends Component {
+export default class TransferFormDataExample extends React.Component{
   encryptionKey="TDwtv0dV6u"
   defaultForm={
     id:"###username###@members",
@@ -101,5 +100,3 @@ class App extends Component {
     }
 
 }
-
-export default App;

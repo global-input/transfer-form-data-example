@@ -16,6 +16,6 @@ Object.defineProperty(window, 'matchMedia', {
 });
 test('renders learn react link', () => {
   render(<App />);
-  const linkElement = screen.getByText(/Global Input App/i);
+  const linkElement = screen.getByText(/Form Data Transfer/i);
   expect(linkElement).toBeInTheDocument();
 });

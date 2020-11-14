@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 
 import { useMobile, FormField } from './mobile';
-import { FormContainer, DisplayInputCopyField, TextButton, FormFooter } from './app-layout';
+import { FormContainer, DisplayInputCopyField, TextButton, FormFooter, AppFooter, MessageButton, MessageLink } from './app-layout';
 
 interface Props {
     domain: string;
@@ -9,8 +9,9 @@ interface Props {
     setFormFields: (formFields: FormField[]) => void;
     manageForm: () => void;
     editDomain: () => void;
+    editConnectionSettings: () => void;
 };
-const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, manageForm, editDomain }) => {
+const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, manageForm, editDomain, editConnectionSettings }) => {
     const [visibility, setVisibility] = useState(FIELDS.visibility.options[0]);
     const mobile = useMobile(() => {
         const id = computerFormId(domain, formFields);
@@ -55,24 +56,30 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
         }
     });
 
-    const onFieldChanged=(formFields:FormField[],formField:FormField,index:number,value:string)=>{
+    const onFieldChanged = (formFields: FormField[], formField: FormField, index: number, value: string) => {
         const changedFormFields = computeChangedFormFields(formFields, formField.id, value, index);
         if (changedFormFields) {
             setFormFields(changedFormFields);
             mobile.sendValue(formField.id as string, value, index);
         }
     }
+    const notConnected = (
+        <AppFooter>
+            <MessageButton label="Settings" onClick={editConnectionSettings} />
+            <MessageLink href="https://github.com/global-input/transfer-form-data-example">Source Code</MessageLink>
+        </AppFooter>
+    );
 
     return (
-        <mobile.ControlledContainer title="Form Data Transfer" domain={domain}>
+        <mobile.ControlledContainer title="Form Data Transfer" domain={domain} notConnected={notConnected}>
             <FormContainer>
                 {formFields.map((formField, index) => (<DisplayInputCopyField
                     field={formField}
                     key={formField.id}
-                    hideValue={visibility.value === 0} onChange={value => onFieldChanged(formFields,formField,index,value)} />))}
+                    hideValue={visibility.value === 0} onChange={value => onFieldChanged(formFields, formField, index, value)} />))}
             </FormContainer>
             <FormFooter>
-                <TextButton onClick={editDomain} label="Edit Domain"/>
+                <TextButton onClick={editDomain} label="Edit Domain" />
                 <TextButton onClick={toggleVisibility} label={visibility.label} />
                 <TextButton onClick={manageForm} label="Manage" />
             </FormFooter>
@@ -135,6 +142,7 @@ const computeChangedFormFields = (formFields: FormField[], fieldId: string | nul
     }
     return null;
 }
+
 
 
 export default TransferFormData;

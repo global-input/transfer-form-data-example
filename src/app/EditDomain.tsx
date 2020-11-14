@@ -14,7 +14,7 @@ const EditDomain: React.FC<Props> = ({ domain, changeDomain, back }) => {
         dataType: "form",
         form: {
             title: "Edit Domain",
-            fields: [{...FIELDS.domain, value:domain}, FIELDS.back, FIELDS.createField]
+            fields: [{ ...FIELDS.domain, value: domain }, FIELDS.back, FIELDS.createField]
         }
     });
     const onDomainChanged = () => {
@@ -23,16 +23,16 @@ const EditDomain: React.FC<Props> = ({ domain, changeDomain, back }) => {
 
     mobile.setOnchange(({ field }) => {
         switch (field.id) {
-                    case FIELDS.domain.id:
-                            setContent(field.value as string);
-                            break;
-                    case FIELDS.back.id:
-                            back();
-                            break;
-                    case FIELDS.createField.id:
-                        onDomainChanged();
-                        break;
-                    default:
+            case FIELDS.domain.id:
+                setContent(field.value as string);
+                break;
+            case FIELDS.back.id:
+                back();
+                break;
+            case FIELDS.createField.id:
+                onDomainChanged();
+                break;
+            default:
         }
     });
 

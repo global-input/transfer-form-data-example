@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 
-import { useMobile, FormField } from './mobile';
+import { useMobile, FormField,userWithDomainAsFormId } from './mobile';
 import { FormContainer, DisplayInputCopyField, TextButton, FormFooter, AppFooter, MessageButton, MessageLink } from './app-layout';
 
 interface Props {
@@ -13,7 +13,19 @@ interface Props {
 };
 const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, manageForm, editDomain, editConnectionSettings }) => {
     const [visibility, setVisibility] = useState(FIELDS.visibility.options[0]);
-    const mobile = useMobile(domain,[...Object.values(FIELDS),...formFields],domain);
+    const initData = () => {
+        const initData = {
+            form: {
+                title: domain,
+                domain: domain,
+                label: domain,
+                fields: [...Object.values(FIELDS), ...formFields]
+            }
+        }
+        userWithDomainAsFormId(initData);
+        return initData;
+    };
+    const mobile = useMobile(initData);
 
 
     const toggleVisibility = useCallback(() => {

@@ -13,64 +13,16 @@ interface ControlledContainerProps {
     notConnected?: React.ReactNode;
     errorMessage?: string;
 }
-interface MobileInputData extends globalInput.GlobalInputData {
-    ControlledContainer: React.FC<ControlledContainerProps>;
-    pairing: React.ReactNode;
-    disconnectButton: React.ReactNode;
-    sendFormFields: (title: string, fields: globalInput.FormField[]) => void;
-    setOnFieldChange: (onFieldChange: (field: globalInput.FormField) => void) => void
-}
-export const useMobile = (title: string, fields: globalInput.FormField[] | (() => globalInput.FormField[]), domain?: string, formId?: string,dataType?:string): MobileInputData => {
+export const useMobile = (initData: globalInput.InitData | (() => globalInput.InitData)) => {
     const connectionSettings = storage.loadConnectionSettings();
     const options: globalInput.ConnectOptions = {
         url: connectionSettings.url,////use your own server"
         apikey: connectionSettings.apikey,
         securityGroup: connectionSettings.securityGroup
     };
-    if (typeof fields === 'function') {
-        fields = fields();
-    }
-    const initData: globalInput.InitData = {
-        action: "input",
-        dataType: "form",
-        form: {
-            title,
-            fields
-        }
-
-    };
-    if(dataType){
-        initData.dataType=dataType;
-    }
-    if (formId) {
-        initData.form.id = formId;
-    }
-    else {
-        const formIdWithDomain = computeFormId(fields, domain);
-        if (formIdWithDomain) {
-            initData.form.id = formIdWithDomain;
-        }
-    }
-    if (domain) {
-        initData.form.label = domain;
-    }
-
-
     const mobile = globalInput.useGlobalInputApp({
         initData, options, codeAES: connectionSettings.codeKey
     });
-
-    const sendFormFields = useCallback((title: string, fields: globalInput.FormField[]) => {
-        mobile.sendInitData({
-            action: "input",
-            dataType: "form",
-            form: {
-                title,
-                fields
-            }
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mobile.sendInitData]);
 
     const setOnFieldChange = useCallback((onFieldChange: (field: globalInput.FormField) => void) => {
         mobile.setOnchange(({ field }) => {
@@ -111,27 +63,25 @@ export const useMobile = (title: string, fields: globalInput.FormField[] | (() =
         // eslint-disable-next-line react-hooks/exhaustive-deps
     ), [mobile.isConnectionDenied, mobile.isError, mobile.isConnected, mobile.isReady, mobile.disconnect, mobile.ConnectQR, mobile.errorMessage]);
 
-    return { ...mobile, ControlledContainer, pairing, disconnectButton, sendFormFields, setOnFieldChange };
+    return { ...mobile, ControlledContainer, pairing, disconnectButton, setOnFieldChange };
+};
+
+export const userWithDomainAsFormId = (initData: globalInput.InitData) => {
+    if (initData?.form?.domain && initData?.form?.fields?.length) {
+        const textFields = initData.form.fields.filter(f => {
+            if ((!f.type) || f.type === 'text') {
+                if (f.nLines && f.nLines > 1) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        });
+        if (!textFields.length) {
+            return null;
+        }
+        initData.form.id = `###${textFields[0].id}###@${initData.form.domain}`;
+    }
 };
 
 export type { FormField, FieldValue } from 'global-input-react';////global-input-react////
-
-
-const computeFormId = (fields: globalInput.FormField[], domain?: string) => {
-    if ((!domain) || (!fields) || (!fields.length)) {
-        return null;
-    }
-    const textFields = fields.filter(f => {
-        if ((!f.type) || f.type === 'text') {
-            if (f.nLines && f.nLines > 1) {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    });
-    if (!textFields.length) {
-        return null;
-    }
-    return `###${textFields[0].id}###@${domain}`;
-}

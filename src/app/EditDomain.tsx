@@ -9,7 +9,13 @@ interface Props {
 }
 const EditDomain: React.FC<Props> = ({ domain, changeDomain, back }) => {
     const [content, setContent] = useState(domain);
-    const mobile = useMobile("Edit Domain",[{ ...FIELDS.domain, value: domain }, FIELDS.back, FIELDS.createField]);
+    const initData = {
+        form: {
+            title: "Edit Domain",
+            fields: [{ ...FIELDS.domain, value: domain }, FIELDS.back, FIELDS.createField]
+        }
+    }
+    const mobile = useMobile(initData);
     const onDomainChanged = () => {
         changeDomain(content.trim());
     };

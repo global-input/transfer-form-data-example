@@ -7,7 +7,6 @@ interface Props {
 }
 
 const AppPairing: React.FC<Props> = ({ back }) => {
-
     const initData = {
         form: {
             title: "Pairing",
@@ -29,7 +28,10 @@ const AppPairing: React.FC<Props> = ({ back }) => {
             <MessageContainer>
                 You need to pair your mobile app in order to be able to connect to your extension.
                 </MessageContainer>
-            {mobile.pairing}
+
+
+            <mobile.PairingQR />
+
             <FormFooter>
                 <TextButton onClick={back} label='Done' />
             </FormFooter>

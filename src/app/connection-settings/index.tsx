@@ -19,7 +19,6 @@ const ConnectionSettings: React.FC<Props> = ({ back, pairing }) => {
     const apikey = setting.apikey ? setting.apikey : '';
     const securityGroup = setting.securityGroup ? setting.securityGroup : '';
     const codeKey = setting.codeKey ? setting.codeKey : '';
-
     const initData = () => ({
         form: {
             title: "Connection Settings",
@@ -61,7 +60,7 @@ const ConnectionSettings: React.FC<Props> = ({ back, pairing }) => {
             back();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mobile.disconnect, back, setting, mobile.pairing]);
+    }, [mobile.disconnect, back, setting]);
 
     const onURLChange = useCallback((url: string) => {
         setURL(url);

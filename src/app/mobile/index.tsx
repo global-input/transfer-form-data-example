@@ -23,7 +23,7 @@ export const useMobile = (initData: globalInput.InitData | (() => globalInput.In
             errorMessage = mobile.errorMessage;
         }
         return (
-            <div>
+            <div style={styles.container}>
                 <div style={styles.content}>
                     <mobile.ConnectQR {...props} />
                     {errorMessage && (<div style={styles.errorMessage}>{errorMessage}</div>)}
@@ -41,22 +41,23 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'center',
         width: '100%',
-        paddingTop: 30,
-        position: "absolute",
-        zIndex: 100,
+        margin: 0,
+        padding: 0
     } as React.CSSProperties,
     content: {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-center',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        backgroundColor: 'white',
+        margin: 0,
+        padding: 0
     } as React.CSSProperties,
     errorMessage: {
         color: 'red',
         fontSize: 11
     }
 };
-
 
 export const userWithDomainAsFormId = (initData: globalInput.InitData) => {
     if (initData?.form?.domain && initData?.form?.fields?.length) {

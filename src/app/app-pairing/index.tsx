@@ -6,7 +6,7 @@ interface Props {
     back: () => void;
 }
 
-const AppPairing: React.FC<Props> = ({ back }) => {
+export const AppPairing: React.FC<Props> = ({ back }) => {
     const initData = {
         form: {
             title: "Pairing",
@@ -58,4 +58,3 @@ const FIELDS = {
 
 
 }
-export default AppPairing;

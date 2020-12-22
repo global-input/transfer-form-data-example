@@ -1,17 +1,16 @@
 import React, { useState, useCallback } from 'react';
 //+//import { useHistory } from 'react-router-dom'; ////website
-import { useMobile, FormField, userWithDomainAsFormId } from './mobile';
-import { AppContainer, FormContainer, DisplayInputCopyField, TextButton, FormFooter, AppFooter, MessageButton, MessageLink } from './app-layout';
-//+//import * as mobileUI from '../../mobile-ui'; ////website
+import { useMobile, ConnectWidget,FormField, InitData} from './mobile';
+import { AppContainer, FormContainer, DisplayInputCopyField, TextButton, FormFooter} from './app-layout';
+//+//import * as mobileUI from '../../micro-apps/mobile-ui'; ////website
 interface Props {
     domain: string;
     formFields: FormField[];
     setFormFields: (formFields: FormField[]) => void;
     manageForm: () => void;
     editDomain: () => void;
-    editConnectionSettings: () => void;
 };
-const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, manageForm, editDomain, editConnectionSettings }) => {
+const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, manageForm, editDomain}) => {
     const [visibility, setVisibility] = useState(FIELDS.visibility.options[0]);
     const initData = () => {
         const initData = {
@@ -27,7 +26,7 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
         return initData;
     };
     //+//const history = useHistory();////website
-    const mobile = useMobile(initData);
+    const mobile = useMobile(initData, true);
 
 
     const toggleVisibility = useCallback(() => {
@@ -60,7 +59,7 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
                     }
                 }
             //+//if (!matched) {
-            //+//mobileUI.addField.onFieldChange(field, history); ////website
+            //+//mobileUI.onFieldChange(field, history); ////website
             //+//}
 
         }
@@ -76,7 +75,7 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
 
     return (
         <AppContainer title="Form Data Transfer" domain={domain}>
-            <mobile.ConnectQR />
+            <ConnectWidget mobile={mobile}/>
             {mobile.isConnected && (
                 <FormContainer>
                     {formFields.map((formField, index) => (<DisplayInputCopyField
@@ -92,10 +91,7 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
                 )}
                 <TextButton onClick={manageForm} label="Manage" />
             </FormFooter>
-            <AppFooter>
-                <MessageButton label="Settings" onClick={editConnectionSettings} />
-                <MessageLink href="https://github.com/global-input/transfer-form-data-example">Source Code</MessageLink>
-            </AppFooter>
+
         </AppContainer>);
 
 
@@ -124,7 +120,7 @@ const FIELDS = {
     }
 
 };
-//+//mobileUI.addField.add(FIELDS);////website
+//+//mobileUI.add(FIELDS);////website
 
 
 
@@ -153,6 +149,23 @@ const computeChangedFormFields = (formFields: FormField[], fieldId: string | nul
     return null;
 }
 
+export const userWithDomainAsFormId = (initData: InitData) => {
+    if (initData?.form?.domain && initData?.form?.fields?.length) {
+        const textFields = initData.form.fields.filter(f => {
+            if ((!f.type) || f.type === 'text') {
+                if (f.nLines && f.nLines > 1) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        });
+        if (!textFields.length) {
+            return null;
+        }
+        initData.form.id = `###${textFields[0].id}###@${initData.form.domain}`;
+    }
+};
 
 
 export default TransferFormData;

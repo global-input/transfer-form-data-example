@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import styled from 'styled-components';
-
-
+import type {ConnectionSettings} from './storage';
+import {Help} from './help';
 const Button = styled.button`
     text-decoration: none;
     font-size: 11px;
@@ -39,10 +39,31 @@ const Form = styled.div`
     justify-content:flex-start;
     align-items:flex-start;
     padding:10px;
-    width:80vw;
+    width:70vw;
     max-width:400px;
+    background-color:white;
+    overflow: scroll;
     height:65vh;
-    max-height:450px;
+    @media screen and (min-height:370px){
+
+        height:300px;
+    }
+    @media screen and (min-height:400px){
+        height:320px;
+
+    }
+    @media screen and (min-height:450px){
+        height:350px;
+
+    }
+    @media screen and (min-height:600px){
+        height:425px;
+    }
+    @media screen and (min-height:700px){
+        height:500px;
+    }
+
+
 `;
 
 
@@ -108,59 +129,7 @@ const Label = styled.label.attrs(props => ({
 `;
 
 
-const ExpandIcon =styled.div`
-    box-sizing: border-box;
-    position: relative;
-    display: inline-block;
-    border:1px solid red;
-    background-color:white;
-    cursor:pointer;
 
-
-    width: 22px;
-    height: 22px;
-    border: 2px solid;
-    border-radius: 100px;
-    top:-5px;
-    color:rgb(77,104,206);
-    margin-right:5px;
-    transform:${props=>props.expand?'rotate(90deg)':'rotate(0deg)'};
-    &::after {
-        content: "";
-        display: block;
-        box-sizing: border-box;
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        border-bottom: 2px solid;
-        border-right: 2px solid;
-        transform: rotate(-45deg);
-        left: 5px;
-        top: 6px;
-    }
-
-`;
-
-const HelpContainer=styled.div`
- position:relative;
- top:-20px;
- display:flex;
- flex-direction:row;
- justify-content:flex-start;
- align-items:flex-start;
- flex-wrap:wrap;
-`;
-const HelpContent=styled.div`
-font-family: Avenir;
-    color: rgb(53,116,230);
-    white-space: wrap;
-    font-size: 12px;
-    display:${props=>props.expand?'inline':'none'};
-    @media only screen and (min-width:500px){
-        font-size: 14px;
-    }
-
-`;
 const WebSocketServer=styled.a.attrs({
     target:'_blank',
     rel: 'noopener noreferrer',
@@ -173,18 +142,7 @@ margin-left:5px;
 `;
 
 
-const Help=({children,expandId, expand,setExpand})=>{
-    const isExpanded=expand===expandId;
-    const toggle=()=>setExpand(isExpanded?'':expandId);
-    return (
-    <HelpContainer>
-            <ExpandIcon expand={isExpanded} onClick={toggle}/>
-            <HelpContent expand={isExpanded}>
-                {children}
-            </HelpContent>
-    </HelpContainer>
-    );
-}
+
 
 const ProxyField=({settings, setSettings,expand,setExpand})=>(
     <Field>
@@ -214,9 +172,9 @@ const ProxyField=({settings, setSettings,expand,setExpand})=>(
                             API Key
                         </Label>
                         <Help expandId='apikey' expand={expand} setExpand={setExpand}>
-                        API Key is used by the <WebSocketServer>WebSocket servers</WebSocketServer> to identify the incoming connections.
-Since the WebSocket servers do not hold any sensitive information and is only responsible for proxying encrypted messages between your mobile app and this application, there is no security implications of exposing this value except for
-maintaining the optimum performance of the WebSocket server.
+API Key is used by the <WebSocketServer>WebSocket servers</WebSocketServer> to identify the incoming connections.
+There is no security implications for exposing this value except for
+the possible impact on the performance of the WebSocket server due to its increased workload, since a WebSocket server does not hold any sensitive information and is only responsible for proxying encrypted messages (encrypted with end-to-end encryption) between your mobile app and this application,
                         </Help>
 
 
@@ -233,10 +191,10 @@ const SecurityGroupField=({settings, setSettings,expand,setExpand})=>(
                         onFocus={()=>setExpand('securityGroup')}/>
                         <Label htmlFor="securityGroup">Security Group Key</Label>
                         <Help expandId='securityGroup' expand={expand} setExpand={setExpand}>
-                        Security Group Key is used by this application to verify
+                        Security Group Key is used by this client application to verify
                         the incoming connections coming from your mobile app
-            in the same way that API Keys are used by server applications to identify incoming requests.
-            If you change this value, you need to pair your mobile app.
+            in the same way that API Keys are used by server applications to identify incoming requests on the server side.
+            You need to pair your mobile app on the "Pair" tab every time after you have modified this value to be able connect to this application.
                         </Help>
 
     </Field>
@@ -249,9 +207,9 @@ const CodeKeyField=({settings, setSettings,expand,setExpand})=>(
                         onFocus={()=>setExpand('codeKey')}/>
                         <Label htmlFor="codeKey">Code Key</Label>
                         <Help expandId='codeKey' expand={expand} setExpand={setExpand}>
-                        Code Key is used by this application to encrypt the QR Code that it displays for you mobile app to scan to obtain the connection information.
-            If you change this value, you need to pair your mobile app.
-
+                        Code Key is used by this application to encrypt the content of the QR Code it displays.
+                        In order for your mobile app to be able to decrypt content of the QR code,
+                        you need to pair your mobile app on the "Pair" tab every time after you have modified it.
                         </Help>
 
                 </Field>
@@ -268,8 +226,11 @@ const Footer = styled.div`
 
 `;
 
-
-export const SettingsEditor = ({ loadSettings,saveSettings}) => {
+interface Props{
+    loadSettings:()=>ConnectionSettings;
+    saveSettings:(settings:ConnectionSettings)=>void;
+}
+export const SettingsEditor:React.FC<Props> = ({ loadSettings,saveSettings}) => {
     const [settings, setSettings] = useState(loadSettings);
     const [expand,setExpand]=useState('');
     const onSave = () => saveSettings(settings);

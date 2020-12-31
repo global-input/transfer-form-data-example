@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 //+//import { useHistory } from 'react-router-dom'; ////website
 import { useMobile, ConnectWidget,FormField, InitData} from './mobile';
-import { FormContainer, DisplayInputCopyField, TextButton, FormFooter} from './app-layout';
-import {AppContainer,Title,Form,ConnectedInstruction,Field,Input,TextArea,Label,CopyToClipboardButton} from './elements';
+import { TextButton} from './app-layout';
+import {AppContainer,Title,Form,ConnectedInstruction,Field,Input,TextArea,Label,CopyToClipboardButton,Footer, DarkButton} from './elements';
 //+//import * as mobileUI from '../../micro-apps/mobile-ui'; ////website
 interface Props {
     domain: string;
@@ -93,13 +93,13 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
             */}
                 </Form>
             )}
-            <FormFooter>
-                <TextButton onClick={editDomain} label="Edit Domain" />
+            <Footer>
+                <DarkButton onClick={editDomain}>Edit Domain</DarkButton>
                 {mobile.isConnected && (
-                    <TextButton onClick={toggleVisibility} label={visibility.label} />
+                    <DarkButton onClick={toggleVisibility}>{visibility.label}</DarkButton>
                 )}
-                <TextButton onClick={manageForm} label="Manage" />
-            </FormFooter>
+                <DarkButton onClick={manageForm}>Manage</DarkButton>
+            </Footer>
 
         </AppContainer>);
 

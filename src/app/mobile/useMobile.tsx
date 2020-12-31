@@ -11,19 +11,19 @@ import * as storage from './storage';
 import {WidgetState, MobileData} from './commons';
 
 
-export const useMobile = (initData: InitData | (() => InitData), showWidgetOnStart=false):MobileData => {
+export const useMobile = (initData: InitData | (() => InitData), showWidgetOnStart=false,configId:string|number='default'):MobileData => {
     const [isShowWidget, setShowWidget] = useState(showWidgetOnStart);
-    const [configId, setConFigId] = useState(1);
+    const [settingsConfig, setSettingsConfigId] = useState(1);
     const [widgetState,setWidgetState]=useState(WidgetState.CONNECT_QR);
     const connectionSettings:storage.ConnectionSettings = storage.loadConnectionSettings();
     const connectOptions: ConnectOptions = {
-        url: connectionSettings.url,////use your own server
+        url: connectionSettings.url,////use your own server"
         apikey: connectionSettings.apikey,
         securityGroup: connectionSettings.securityGroup
     };
     const mobile = useGlobalInputApp({
         initData, options:connectOptions, codeAES: connectionSettings.codeKey
-    }, isShowWidget, configId);
+    }, isShowWidget, `${settingsConfig}-${configId}`);
     ////dev-test codeData
     const {disconnect}=mobile;
     const onSaveSettings=useCallback((settings)=>{
@@ -33,7 +33,7 @@ export const useMobile = (initData: InitData | (() => InitData), showWidgetOnSta
         else {
             setWidgetState(WidgetState.CONNECT_QR);
         }
-        setConFigId(configId => configId + 1);
+        setSettingsConfigId(configId => configId + 1);
         disconnect();
     },[disconnect]);
     const loadSettings=useCallback(()=>connectionSettings,[connectionSettings]);

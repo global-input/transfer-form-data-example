@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import styled from '../components/node_modules/styled-components';
+import styled from 'styled-components';
 import type {ConnectionSettings} from './storage';
 import {Help} from './help';
 const Button = styled.button`

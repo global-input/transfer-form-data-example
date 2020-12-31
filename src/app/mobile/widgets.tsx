@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import styled from '../components/node_modules/styled-components';
+import styled from 'styled-components';
 import {ConnectQR, PairingQR} from 'global-input-react';////global-input-react////
 
 import {WidgetState, MobileData} from './commons';

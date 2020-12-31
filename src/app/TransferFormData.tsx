@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 //+//import { useHistory } from 'react-router-dom'; ////website
 import { useMobile, ConnectWidget,FormField, InitData} from './mobile';
 import { TextButton} from './app-layout';
-import {AppContainer,Title,Form,ConnectedInstruction,Field,Input,TextArea,Label,CopyToClipboardButton,Footer, DarkButton} from './elements';
+import {AppContainer,Title,Form,ConnectedInstruction,Field,Input,TextArea,Label,CopyToClipboardButton,Footer, DarkButton} from './components';
 //+//import * as mobileUI from '../../micro-apps/mobile-ui'; ////website
 interface Props {
     domain: string;

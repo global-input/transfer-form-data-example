@@ -8,7 +8,7 @@ export const Form = styled.div`
     align-items:flex-start;
     padding:10px;
     width:80vw;
-
+    border:1px solid #DDDDDD;
     overflow: scroll;
     @media print {
         display:none;
@@ -165,7 +165,6 @@ export const Footer = styled.div`
         justify-content: space-between;
         width: 100%;
         align-items: center;
-
         padding-bottom:50px;
         @media print {
             display:none;

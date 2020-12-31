@@ -17,7 +17,7 @@ export const useMobile = (initData: InitData | (() => InitData), showWidgetOnSta
     const [widgetState,setWidgetState]=useState(WidgetState.CONNECT_QR);
     const connectionSettings:storage.ConnectionSettings = storage.loadConnectionSettings();
     const connectOptions: ConnectOptions = {
-        url: connectionSettings.url,////use your own server"
+        url: connectionSettings.url,////use your own server
         apikey: connectionSettings.apikey,
         securityGroup: connectionSettings.securityGroup
     };

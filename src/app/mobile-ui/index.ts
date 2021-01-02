@@ -3,7 +3,9 @@
 import { useMobile} from '../mobile';
 import type {InitData} from '../mobile';
 import * as storage from '../storage';
+//+//import * as mobileUI from '../../../micro-apps/mobile-ui'; ////website
 export * from '../mobile';
+
 
 
 const userWithDomainAsFormId = (initData: InitData) => {

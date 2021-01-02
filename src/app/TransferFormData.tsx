@@ -1,18 +1,28 @@
 import React, { useState, useCallback } from 'react';
 //+//import { useHistory } from 'react-router-dom'; ////website
-import { useMobile, ConnectWidget,FormField, InitData} from './mobile';
-import { TextButton} from './app-layout';
-import {AppContainer,Title,Form,ConnectedInstruction,Field,Input,TextArea,Label,CopyToClipboardButton,Footer, DarkButton} from './components';
+import { useMobile, ConnectButton,DisConnectButton,ConnectWidget,FormField, InitData} from './mobile';
+
+import {AppContainer,Form,Field,Input,Label,Footer, DarkButton,Help,
+ConnectContainer} from './components';
 //+//import * as mobileUI from '../../micro-apps/mobile-ui'; ////website
+
+import {DisplayInputField,computeChangedFormFields,isFieldChecked} from './formFields';
 interface Props {
     domain: string;
     formFields: FormField[];
-    setFormFields: (formFields: FormField[]) => void;
+    onChangeFormFields: (formFields: FormField[]) => void;
     manageForm: () => void;
     editDomain: () => void;
+    configId:number;
+    changeDomain:(domain:string)=>void;
+    selectedFields:FormField[];
+    setSelectedFields:(fields:FormField[]) =>void;
+    onDeleteSelected:()=>void;
 };
-const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, manageForm, editDomain}) => {
+
+export const TransferFormData: React.FC<Props> = ({ domain, changeDomain,configId,formFields, onChangeFormFields, manageForm, editDomain,selectedFields,setSelectedFields,onDeleteSelected}) => {
     const [visibility, setVisibility] = useState(FIELDS.visibility.options[0]);
+    const [expand,setExpand]=useState('')
     const initData = () => {
         const initData = {
             id: 'transfer-form',
@@ -27,7 +37,8 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
         return initData;
     };
     //+//const history = useHistory();////website
-    const mobile = useMobile(initData, true);
+    const mobile = useMobile(initData, false,configId);
+
 
 
     const toggleVisibility = useCallback(() => {
@@ -36,6 +47,15 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
         mobile.sendValue(FIELDS.visibility.id, vis.value);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [visibility, mobile.sendValue]);
+    const canDelete=!!selectedFields.length
+
+    const onFieldChanged = (formFields: FormField[], formField: FormField, index: number, value: string) => {
+        const changedFormFields = computeChangedFormFields(formFields, formField.id, value, index);
+        if (changedFormFields) {
+            onChangeFormFields(changedFormFields);
+            mobile.sendValue(formField.id as string, value, index);
+        }
+    }
 
     mobile.setOnchange(({ field }) => {
         switch (field.id) {
@@ -55,7 +75,7 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
                         //+//matched = true;
                         const changedFormFields = computeChangedFormFields(formFields, formField.id, field.value as string, index);
                         if (changedFormFields) {
-                            setFormFields(changedFormFields);
+                            onChangeFormFields(changedFormFields);
                         }
                     }
                 }
@@ -66,65 +86,61 @@ const TransferFormData: React.FC<Props> = ({ domain, formFields, setFormFields, 
         }
     });
 
-    const onFieldChanged = (formFields: FormField[], formField: FormField, index: number, value: string) => {
 
-        const changedFormFields = computeChangedFormFields(formFields, formField.id, value, index);
-        if (changedFormFields) {
-            setFormFields(changedFormFields);
-            mobile.sendValue(formField.id as string, value, index);
-        }
-    }
 
     return (
         <AppContainer>
-            <Title>{domain}</Title>
 
-            <ConnectWidget mobile={mobile}/>
-            {mobile.isConnected && (
+<ConnectContainer>
+    <ConnectButton mobile={mobile}/>
+    <DisConnectButton mobile={mobile}/>
+    <ConnectWidget mobile={mobile}/>
+
+</ConnectContainer>
+
+
+
+
+            <Field>
+                <Input id='changeDomain'  type="text"
+                value={domain} placeholder="Domain"
+                onChange={(evt)=>changeDomain(evt.target.value)}/>
+                <Label htmlFor="changeDomain">Domain</Label>
+                <Help expand={expand} setExpand={setExpand} expandId="changeDomain" position={3}>
+                    Domain is used to organize forms as well as matching data in your mobile secure storage to help you locate the data for filling the form displayed.
+                </Help>
+            </Field>
+
+
+
                 <Form>
                     {formFields.map((formField, index) => (<DisplayInputField  key={formField.id} index={index}
-                        formField={formField} onFieldChanged={onFieldChanged} formFields={formFields} visibility={visibility}/>
+                        formField={formField} onFieldChanged={onFieldChanged} formFields={formFields} visibility={visibility}
+                        selectedFields={selectedFields} setSelectedFields={setSelectedFields}/>
                 ))}
-        {/*
-                    <DisplayInputCopyField
-                        field={formField}
-                        key={formField.id}
-                        hideValue={visibility.value === 0} onChange={value => onFieldChanged(formFields, formField, index, value)} />))}
-            */}
                 </Form>
-            )}
+
+
+
+
+
+
+
+
             <Footer>
-                <DarkButton onClick={editDomain}>Edit Domain</DarkButton>
-                {mobile.isConnected && (
-                    <DarkButton onClick={toggleVisibility}>{visibility.label}</DarkButton>
-                )}
-                <DarkButton onClick={manageForm}>Manage</DarkButton>
+
+                {canDelete && (<DarkButton onClick={onDeleteSelected}>Deleted Selected</DarkButton>)}
+                <DarkButton onClick={toggleVisibility}>{visibility.label}</DarkButton>
+
             </Footer>
+
+
+
 
         </AppContainer>);
 
 
 };
-const DisplayInputField=({formFields,formField,index,onFieldChanged,visibility})=>{
-
-    if(visibility.value === 0 || (!formField.nLines) || formField.nLines <=1){
-        return (<Field>
-            <Input id={formField.id}  type={visibility.value === 0?'password':'text'} value={formField.value} placeholder={formField.label}
-            onChange={(evt)=>onFieldChanged(formFields, formField, index, evt.target.value)}/>
-            <Label htmlFor="decryptedContent">{formField.label}</Label>
-            <CopyToClipboardButton value={formField.value} position={2}>Copy</CopyToClipboardButton>
-            </Field>);
-    }
-    else{
-        return (<Field>
-            <TextArea id={formField.id} value={formField.value} placeholder={formField.label}
-                onChange={(evt)=>onFieldChanged(formFields, formField, index, evt.target.value)}/>
-                <Label htmlFor="decryptedContent">{formField.label}</Label>
-                <CopyToClipboardButton value={formField.value} position={2}>Copy</CopyToClipboardButton>
-        </Field>);
-    }
-}
-
 
 
 
@@ -154,32 +170,9 @@ const FIELDS = {
 
 
 
-const computeChangedFormFields = (formFields: FormField[], fieldId: string | null | undefined, value: string, index: number) => {
-    let fieldModified = false;
-    const fields = formFields.map((f, ind) => {
-        if (fieldId) {
-            if (f.id === fieldId) {
-                fieldModified = true;
-                return { ...f, value };
-            }
-        }
-        else {
-            if (index >= 0 && index < formFields.length) {
-                if (ind === index) {
-                    fieldModified = true;
-                    return { ...f, value };
-                }
-            }
-        }
-        return f;
-    });
-    if (fieldModified) {
-        return fields;
-    }
-    return null;
-}
 
-export const userWithDomainAsFormId = (initData: InitData) => {
+
+const userWithDomainAsFormId = (initData: InitData) => {
     if (initData?.form?.domain && initData?.form?.fields?.length) {
         const textFields = initData.form.fields.filter(f => {
             if ((!f.type) || f.type === 'text') {
@@ -196,6 +189,3 @@ export const userWithDomainAsFormId = (initData: InitData) => {
         initData.form.id = `###${textFields[0].id}###@${initData.form.domain}`;
     }
 };
-
-
-export default TransferFormData;

@@ -167,3 +167,12 @@ export const Error = styled.div`
         max-height: 100px;
         overflow: scroll;
 `;
+
+export const ConnectContainer=styled.div`
+    display:flex;
+    flex-direction:column;
+
+    min-width:50px;
+
+    padding-bottom:30px;
+`;

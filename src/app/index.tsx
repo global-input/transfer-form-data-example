@@ -6,7 +6,7 @@ import { FormField } from './mobile';
 
 import CreateField from './CreateField';
 import ManageForm from './ManageForm';
-import TransferFormData from './TransferFormData';
+import {TransferFormData} from './TransferFormData';
 import EditDomain from './EditDomain';
 import { loadFormFromQuery } from './url-query';
 
@@ -24,10 +24,15 @@ interface Props {
 }
 const MainControl: React.FC<Props> = ({ location }) => {
     const [domain, setDomain] = useState(loadDomain);
+    const [configId,setConfigId]=useState(0);
+    const [selectedFields, setSelectedFields]=useState<FormField[]>([]);
     const [page, setPage] = useState(PAGES.TRANSFER_FORM_DATA);
     const [formFields, setFormFields] = useState(() => buildFormFields(domain));
+
+
+
     const onFormStructureChanged = (formFields: FormField[]) => {
-        setFormFields(formFields);
+        onChangeFormFields(formFields);
         storage.saveFormFields(domain, formFields);
     };
     const transferFormData = useCallback(() => setPage(PAGES.TRANSFER_FORM_DATA), []);
@@ -35,12 +40,24 @@ const MainControl: React.FC<Props> = ({ location }) => {
     const createField = useCallback(() => setPage(PAGES.CREATE_FIELD), []);
     const editDomain = useCallback(() => setPage(PAGES.EDIT_DOMAIN), []);
 
+    const onChangeFormFields=(formFields)=>{
+        setSelectedFields([]);
+        setFormFields(formFields);
+        setConfigId(configId=>configId+1);
+    }
+    const onDeleteSelected=()=>{
+        const newFormFields=formFields.filter(f=>selectedFields.indexOf(f)===-1);
+        onChangeFormFields(newFormFields);
+    }
+
 
     const changeDomain = useCallback((domain) => {
         setDomain(domain);
         storage.setDomain(domain);
-        transferFormData();
-    }, [transferFormData]);
+        setConfigId(configId=>configId+1);
+        //transferFormData();
+    }, []);
+
 
     useEffect(() => {
         const formData = loadFormFromQuery(location);
@@ -56,14 +73,16 @@ const MainControl: React.FC<Props> = ({ location }) => {
                 }
             }
             if (formData.fields) {
-                setFormFields(formData.fields);
+                onChangeFormFields(formData.fields);
             }
         }
     }, [location]);
 
     switch (page) {
         case PAGES.TRANSFER_FORM_DATA:
-            return (<TransferFormData domain={domain} formFields={formFields} setFormFields={setFormFields} manageForm={manageForm} editDomain={editDomain}/>);
+            return (<TransferFormData configId={configId} domain={domain} changeDomain={changeDomain} formFields={formFields} onChangeFormFields={onChangeFormFields} manageForm={manageForm} editDomain={editDomain}
+                selectedFields={selectedFields} setSelectedFields={setSelectedFields}
+                onDeleteSelected={onDeleteSelected}/>);
         case PAGES.MANAGER_FORM:
             return (<ManageForm formFields={formFields} onFormStructureChanged={onFormStructureChanged} back={transferFormData} createField={createField} />);
         case PAGES.CREATE_FIELD:

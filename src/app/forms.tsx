@@ -50,23 +50,26 @@ export const DisplayInputField = ({
                     onBlur={onBlur} />
                     <Label htmlFor={formField.id}>{formField.label}</Label>
                 </Field>
-                <CopyToClipboardButton value={formField.value} position={2}>Copy</CopyToClipboardButton>
+                <CopyToClipboardButton value={formField.value} position={3}>Copy</CopyToClipboardButton>
             </InputGroup>
         );
 
 
     }
     else {
-        return (<Field>
+        return (
             <InputGroup>
-                {showCheckbox && (<CheckBox checked={checked} onChange={toggleSelect} />)}
+            {showCheckbox && (<CheckBox checked={checked} onChange={toggleSelect} />)}
+            <Field>
                 <TextArea id={formField.id} value={formField.value} placeholder={formField.label}
                     onChange={onChange} />
-            </InputGroup>
+                <Label htmlFor={formField.id}>{formField.label}</Label>
+            </Field>
+            <CopyToClipboardButton value={formField.value} position={3}>Copy</CopyToClipboardButton>
 
-            <Label htmlFor={formField.id}>{formField.label}</Label>
-            <CopyToClipboardButton value={formField.value} position={2}>Copy</CopyToClipboardButton>
-        </Field>);
+        </InputGroup>
+        );
+
     }
 };
 

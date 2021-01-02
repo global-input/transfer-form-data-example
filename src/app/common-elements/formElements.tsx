@@ -175,6 +175,7 @@ export const InputGroup=styled.div`
 display:flex;
 flex-direction:row;
 width:100%;
+padding-top:20px;
 
 
 `;

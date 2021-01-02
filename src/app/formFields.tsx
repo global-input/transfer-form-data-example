@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
+
 import type { FormField} from './mobile';
 import {
     Field, Input, TextArea, Label, CopyToClipboardButton,
-    InputGroup, CheckBox
+    InputGroup, CheckBox,Form,Form2,Title,Select,Option,DarkButton,Footer2
 } from './components';
 
-export const isFieldChecked= (formField,selectedFields) => selectedFields.filter(s => s === formField).length;
+const isFieldChecked= (formField,selectedFields) => selectedFields.filter(s => s === formField).length;
 
-export const DisplayInputField = ({ formFields,
-    formField, index, onFieldChanged, visibility,
+export const DisplayInputField = ({
+    formField, onChange, visibility,
     selectedFields, setSelectedFields }) => {
 
     const [focused, setFocused] = useState(false);
@@ -36,10 +37,6 @@ export const DisplayInputField = ({ formFields,
     const onBlur=()=>{
         setFocused(false)
     }
-    const onChange=(evt)=>{
-        onFieldChanged(formFields, formField, index, evt.target.value)
-    }
-
     if (visibility.value === 0 || (!formField.nLines) || formField.nLines <= 1) {
         return (
             <InputGroup>
@@ -64,7 +61,7 @@ export const DisplayInputField = ({ formFields,
             <InputGroup>
                 {showCheckbox && (<CheckBox checked={checked} onChange={toggleSelect} />)}
                 <TextArea id={formField.id} value={formField.value} placeholder={formField.label}
-                    onChange={(evt) => onFieldChanged(formFields, formField, index, evt.target.value)} />
+                    onChange={onChange} />
             </InputGroup>
 
             <Label htmlFor={formField.id}>{formField.label}</Label>
@@ -74,27 +71,61 @@ export const DisplayInputField = ({ formFields,
 };
 
 
-export const computeChangedFormFields = (formFields: FormField[], fieldId: string | null | undefined, value: string, index: number) => {
-    let fieldModified = false;
-    const fields = formFields.map((f, ind) => {
-        if (fieldId) {
-            if (f.id === fieldId) {
-                fieldModified = true;
-                return { ...f, value };
+
+
+
+const FIELD_TYPES=[{value:'single-line', label:'Single Line Field'},
+                 {value:'multi-line', label:'Multi Line Field'},
+                 {value:'password', label:'Password Field'}]
+
+export const AddNewField=({formFields,onFormModified})=>{
+    const [label, setLabel] = useState('');
+    const [fieldType, setFieldType] = useState(FIELD_TYPES[0]);
+    const onChange=(evt)=>{
+        setLabel(evt.target.value);
+    };
+    const onAddNewField=()=>{
+        const fieldName = label.trim();
+        if (!fieldName) {
+            return;
+        }
+        const nLines = fieldType === FIELD_TYPES[1] ? 5 : 1;
+        const id = label.replace(' ', "_").toLowerCase();
+        for (let f of formFields) {
+            if (f.id === id) {
+                return;
             }
         }
-        else {
-            if (index >= 0 && index < formFields.length) {
-                if (ind === index) {
-                    fieldModified = true;
-                    return { ...f, value };
-                }
-            }
-        }
-        return f;
-    });
-    if (fieldModified) {
-        return fields;
+        const type = fieldType === FIELD_TYPES[2] ? 'secret' : 'text';
+      const newFormFields=[...formFields, { id, label, type, value: '', nLines }];
+      onFormModified(newFormFields,true);
     }
-    return null;
+    const onSelectChange=(evt)=>{
+        const matched=FIELD_TYPES.filter(f=>f.value===evt.target.value);
+        if(matched.length){
+            setFieldType(matched[0]);
+        }
+    }
+
+    return (
+        <Form>
+        <Form2>
+            <Title>Add new field</Title>
+            <Field>
+            <Input id="addFieldLabel" type="text"
+                        value={label}
+                        placeholder="Field Name"
+                        onChange={onChange}/>
+                        <Label htmlFor="addFieldLabel">Field Name</Label>
+            </Field>
+            <Select value={fieldType.value} onChange={onSelectChange}>
+                {FIELD_TYPES.map(f=>( <Option value={f.value}>{f.label}</Option>))}
+              </Select>
+              <Footer2>
+            <DarkButton onClick={onAddNewField}>Add</DarkButton>
+            </Footer2>
+        </Form2>
+        </Form>
+
+    );
 }

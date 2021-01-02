@@ -31,25 +31,34 @@ const MainControl: React.FC<Props> = ({ location }) => {
 
 
 
-    const onFormStructureChanged = (formFields: FormField[]) => {
-        onChangeFormFields(formFields);
-        storage.saveFormFields(domain, formFields);
-    };
     const transferFormData = useCallback(() => setPage(PAGES.TRANSFER_FORM_DATA), []);
     const manageForm = useCallback(() => setPage(PAGES.MANAGER_FORM), []);
     const createField = useCallback(() => setPage(PAGES.CREATE_FIELD), []);
     const editDomain = useCallback(() => setPage(PAGES.EDIT_DOMAIN), []);
 
-    const onChangeFormFields=(formFields)=>{
+    const onFormFieldsValuesModified=(formFields:FormField[])=>{
         setSelectedFields([]);
         setFormFields(formFields);
-        setConfigId(configId=>configId+1);
     }
+    const onFormStructureModified = (formFields: FormField[]) => {
+        setFormFields(formFields);
+        storage.saveFormFields(domain, formFields);
+        setConfigId(configId=>configId+1);
+        setSelectedFields([]);
+    };
     const onDeleteSelected=()=>{
         const newFormFields=formFields.filter(f=>selectedFields.indexOf(f)===-1);
-        onChangeFormFields(newFormFields);
+        onFormStructureModified(newFormFields);
     }
 
+    const onFormModified=(formFields: FormField[], isStructureChanged:boolean) => {
+        if(isStructureChanged){
+            storage.saveFormFields(domain, formFields);
+            setConfigId(configId=>configId+1);
+        }
+        setSelectedFields([]);
+        setFormFields(formFields);
+    }
 
     const changeDomain = useCallback((domain) => {
         setDomain(domain);
@@ -73,20 +82,24 @@ const MainControl: React.FC<Props> = ({ location }) => {
                 }
             }
             if (formData.fields) {
-                onChangeFormFields(formData.fields);
+                setFormFields(formFields);
             }
         }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
 
     switch (page) {
         case PAGES.TRANSFER_FORM_DATA:
-            return (<TransferFormData configId={configId} domain={domain} changeDomain={changeDomain} formFields={formFields} onChangeFormFields={onChangeFormFields} manageForm={manageForm} editDomain={editDomain}
-                selectedFields={selectedFields} setSelectedFields={setSelectedFields}
-                onDeleteSelected={onDeleteSelected}/>);
+            return (<TransferFormData configId={configId}
+                    domain={domain} changeDomain={changeDomain}
+                    formFields={formFields} onFormModified={onFormModified}
+                    manageForm={manageForm} editDomain={editDomain}
+                   selectedFields={selectedFields} setSelectedFields={setSelectedFields}/>);
         case PAGES.MANAGER_FORM:
-            return (<ManageForm formFields={formFields} onFormStructureChanged={onFormStructureChanged} back={transferFormData} createField={createField} />);
+            return (<ManageForm formFields={formFields} onFormStructureChanged={onFormStructureModified} back={transferFormData} createField={createField} />);
         case PAGES.CREATE_FIELD:
-            return (<CreateField formFields={formFields} onFormStructureChanged={onFormStructureChanged} back={manageForm} />);
+            return (<CreateField formFields={formFields} onFormStructureChanged={onFormStructureModified} back={manageForm} />);
         case PAGES.EDIT_DOMAIN:
             return (<EditDomain back={transferFormData} domain={domain} changeDomain={changeDomain} />);
         default:

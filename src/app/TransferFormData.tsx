@@ -6,21 +6,21 @@ import {AppContainer,Form,Field,Input,Label,Footer, DarkButton,Help,
 ConnectContainer} from './components';
 //+//import * as mobileUI from '../../micro-apps/mobile-ui'; ////website
 
-import {DisplayInputField,computeChangedFormFields,isFieldChecked} from './formFields';
+import {DisplayInputField,AddNewField} from './formFields';
+
 interface Props {
     domain: string;
     formFields: FormField[];
-    onChangeFormFields: (formFields: FormField[]) => void;
+    onFormModified: (formFields: FormField[],isStructureChanged:boolean) => void;
     manageForm: () => void;
     editDomain: () => void;
     configId:number;
     changeDomain:(domain:string)=>void;
     selectedFields:FormField[];
     setSelectedFields:(fields:FormField[]) =>void;
-    onDeleteSelected:()=>void;
 };
 
-export const TransferFormData: React.FC<Props> = ({ domain, changeDomain,configId,formFields, onChangeFormFields, manageForm, editDomain,selectedFields,setSelectedFields,onDeleteSelected}) => {
+export const TransferFormData: React.FC<Props> = ({ domain, changeDomain,configId,formFields, manageForm, editDomain,selectedFields,setSelectedFields,onFormModified}) => {
     const [visibility, setVisibility] = useState(FIELDS.visibility.options[0]);
     const [expand,setExpand]=useState('')
     const initData = () => {
@@ -37,25 +37,20 @@ export const TransferFormData: React.FC<Props> = ({ domain, changeDomain,configI
         return initData;
     };
     //+//const history = useHistory();////website
-    const mobile = useMobile(initData, false,configId);
-
-
-
+    const mobile = useMobile(initData, true,configId);
     const toggleVisibility = useCallback(() => {
         const vis = visibility === FIELDS.visibility.options[0] ? FIELDS.visibility.options[1] : FIELDS.visibility.options[0];
         setVisibility(vis);
         mobile.sendValue(FIELDS.visibility.id, vis.value);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [visibility, mobile.sendValue]);
-    const canDelete=!!selectedFields.length
 
-    const onFieldChanged = (formFields: FormField[], formField: FormField, index: number, value: string) => {
-        const changedFormFields = computeChangedFormFields(formFields, formField.id, value, index);
-        if (changedFormFields) {
-            onChangeFormFields(changedFormFields);
-            mobile.sendValue(formField.id as string, value, index);
-        }
-    }
+    const onDeleteSelected=()=>{
+        const newFormFields=formFields.filter(f=>selectedFields.indexOf(f)===-1);
+        onFormModified(newFormFields,true);
+    };
+
+    const canDelete=!!selectedFields.length;
 
     mobile.setOnchange(({ field }) => {
         switch (field.id) {
@@ -69,25 +64,24 @@ export const TransferFormData: React.FC<Props> = ({ domain, changeDomain,configI
                 editDomain();
                 break;
             default:
-                //+//let matched = false;
-                for (const [index, formField] of formFields.entries()) {
-                    if (formField.id === field.id) {
-                        //+//matched = true;
-                        const changedFormFields = computeChangedFormFields(formFields, formField.id, field.value as string, index);
-                        if (changedFormFields) {
-                            onChangeFormFields(changedFormFields);
-                        }
+                let fieldModified = false;
+                const newFormFields=formFields.map(f=>{
+                    if (f.id === field.id) {
+                        fieldModified = true;
+                        return {...f,value:field.value};
                     }
+                    else{
+                        return f;
+                    }
+                });
+                if(fieldModified){
+                    onFormModified(newFormFields,false);
                 }
-            //+//if (!matched) {
-            //+//mobileUI.onFieldChange(field, history); ////website
-            //+//}
-
+                //+//if (!fieldModified) {
+                //+//mobileUI.onFieldChange(field, history); ////website
+                //+//}
         }
     });
-
-
-
     return (
         <AppContainer>
 
@@ -114,8 +108,20 @@ export const TransferFormData: React.FC<Props> = ({ domain, changeDomain,configI
 
 
                 <Form>
-                    {formFields.map((formField, index) => (<DisplayInputField  key={formField.id} index={index}
-                        formField={formField} onFieldChanged={onFieldChanged} formFields={formFields} visibility={visibility}
+                    {formFields.map((formField, index) => (
+                    <DisplayInputField  key={formField.id}
+                        formField={formField} onChange={(evt)=>{
+                            const newFormFields=formFields.map(f=>{
+                                if (f === formField) {
+                                    return {...f,value:evt.target.value};
+                                }
+                                else{
+                                    return f;
+                                }
+                            });
+                            onFormModified(newFormFields,false);
+                            mobile.sendValue(formField.id as string, evt.target.value, index);
+                        }}  visibility={visibility}
                         selectedFields={selectedFields} setSelectedFields={setSelectedFields}/>
                 ))}
                 </Form>
@@ -134,6 +140,9 @@ export const TransferFormData: React.FC<Props> = ({ domain, changeDomain,configI
 
             </Footer>
 
+
+
+            <AddNewField formFields={formFields} onFormModified={onFormModified}/>
 
 
 

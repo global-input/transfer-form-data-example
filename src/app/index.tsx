@@ -64,7 +64,8 @@ const App: React.FC<Props> = ({ location }) => {
                 onChange={(evt)=>changeDomain(evt.target.value)}/>
                 <Label htmlFor="changeDomain">Domain</Label>
                 <Help expand={expand} setExpand={setExpand} expandId="changeDomain">
-    This value helps to locate data in your mobile secure storage. It is also used when organizing the forms.
+    This value is used when locating data in your mobile secure storage.
+    It is also used to identify the form structure you have created in this application.
                 </Help>
 
             </DomainField>

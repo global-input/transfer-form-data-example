@@ -7,7 +7,7 @@ import {ConnectWidget} from './mobile-ui';
 
 import { loadFormFromQueryString } from './url-query';
 import {AppContainer,Form,Field,Input,Label,Footer, DarkButton,Help,
-    ConnectContainer} from './components';
+    ConnectContainer,DomainField} from './components';
 
 import {DisplayInputField,AddNewField} from './forms';
 
@@ -36,7 +36,7 @@ const App: React.FC<Props> = ({ location }) => {
     const changeDomain = useCallback((domain) => {
         setDomain(domain);
         storage.setDomain(domain);
-        setConfigId(configId=>configId+1);
+        onFormModified(buildFormFields(domain),true);
     }, []);
 
     const canDelete=!!selectedFields.length;
@@ -58,21 +58,16 @@ const App: React.FC<Props> = ({ location }) => {
 
     return (
         <AppContainer>
-
-            <ConnectContainer>
-                    <ConnectWidget mobile={mobile}/>
-            </ConnectContainer>
-            <Field>
+            <DomainField>
                 <Input id='changeDomain'  type="text"
                 value={domain} placeholder="Domain"
                 onChange={(evt)=>changeDomain(evt.target.value)}/>
                 <Label htmlFor="changeDomain">Domain</Label>
                 <Help expand={expand} setExpand={setExpand} expandId="changeDomain">
-                    Domain is used to organize forms as well as matching data in your mobile secure storage to help you locate the data for filling the form displayed.
+    This value helps to locate data in your mobile secure storage. It is also used when organizing the forms.
                 </Help>
 
-            </Field>
-
+            </DomainField>
 
 
 
@@ -101,7 +96,6 @@ const App: React.FC<Props> = ({ location }) => {
 
 
 
-
             <Footer>
 
                 {canDelete && (<DarkButton onClick={onDeleteSelected}>Deleted Selected</DarkButton>)}
@@ -119,6 +113,10 @@ const App: React.FC<Props> = ({ location }) => {
 
             <AddNewField formFields={formFields} onFormModified={onFormModified}/>
 
+
+            <ConnectContainer>
+                    <ConnectWidget mobile={mobile}/>
+            </ConnectContainer>
 
 
         </AppContainer>);
